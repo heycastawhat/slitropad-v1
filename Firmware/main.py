@@ -1,49 +1,35 @@
-"""
-KMK firmware for a 3x3 Xiao RP2040 macropad
-
-Pins:
-- Rows: GP0, GP1, GP2
-- Cols: GP3, GP4, GP5
-- Neopixel (WS2812): GP27 (1 LED)
-
-To use this you must have CircuitPython (or a KMK-compatible MicroPython build)
-on the XIAO RP2040 and the KMK library installed under `lib/` on the board.
-
-Copy this file to the board as `main.py` alongside KMK in `lib/`.
-"""
-
-from kmk.kmk_keyboard import KMKKeyboard
-from kmk.keys import KC
-from kmk.scanners import DiodeOrientation
-from kmk.modules import rgb
+# You import all the IOs of your board
 import board
 
+# These are imports from the kmk library
+from kmk.kmk_keyboard import KMKKeyboard
+from kmk.scanners.keypad import KeysScanner
+from kmk.keys import KC
+from kmk.modules.macros import Press, Release, Tap, Macros
 
+# This is the main instance of your keyboard
 keyboard = KMKKeyboard()
 
-# 3x3 matrix wiring (adjust if your wiring differs)
-keyboard.row_pins = (board.GP0, board.GP1, board.GP2)
-keyboard.col_pins = (board.GP3, board.GP4, board.GP5)
-keyboard.diode_orientation = DiodeOrientation.ROW2COL
+# Add the macro extension
+macros = Macros()
+keyboard.modules.append(macros)
 
-# Simple 1-LED NeoPixel on GP27
-try:
-	rgb_mod = rgb.RGB(pixel_pin=board.GP27, num_pixels=1)
-	keyboard.modules.append(rgb_mod)
-except Exception:
-	# If rgb module isn't available on the current KMK build, continue without it
-	pass
+# Define your pins here!
+PINS = [board.D8, board.D9, board.D10, board.D11, board.D4, board.D5]
 
-# Default layer: letters A..I mapped to the 3x3 pad
+# Tell kmk we are not using a key matrix
+keyboard.matrix = KeysScanner(
+    pins=PINS,
+    value_when_pressed=False,
+)
+
+# Here you define the buttons corresponding to the pins
+# Look here for keycodes: https://github.com/KMKfw/kmk_firmware/blob/main/docs/en/keycodes.md
+# And here for macros: https://github.com/KMKfw/kmk_firmware/blob/main/docs/en/macros.md
 keyboard.keymap = [
-	[
-		KC.A, KC.B, KC.C,
-		KC.D, KC.E, KC.F,
-		KC.G, KC.H, KC.I,
-	]
+    [KC.A, KC.DELETE, KC.MACRO("Hello world!"), KC.Macro(Press(KC.LCMD), Tap(KC.S), Release(KC.LCMD)),]
 ]
 
-
-if __name__ == "__main__":
-	keyboard.go()
-
+# Start kmk!
+if __name__ == '__main__':
+    keyboard.go()
