@@ -31,3 +31,4 @@ Key 6: Mission Control
 - 6x MX-Style switches
 - 4x M3x16mm screws
 - 4x M3x5mx4mm heatset inserts
+- Seed Studio XIAO RP2040
